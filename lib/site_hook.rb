@@ -20,6 +20,10 @@ module SiteHook
   autoload :Gem, 'site_hook/gem'
   autoload :Paths, 'site_hook/paths'
   # class SassHandler (inherits from Sinatra::Base)
+  module_function
+  def self.set_options(name, value)
+    SiteHook.const_set("#{name.upcase}", value)
+  end
   class SassHandler < Sinatra::Base
     set :views, Pathname(app_file).dirname.join('site_hook', 'static', 'sass').to_s
     get '/css/*.css' do

@@ -17,10 +17,11 @@ module SiteHook
     method_option(:log_levels, type: :hash, banner: 'LEVELS', default: SiteHook::Logs.log_levels)
     method_option :host, type: :string, banner: 'BINDHOST', default: JPHRC.fetch('host', '127.0.0.1')
     method_option :port, type: :string, banner: 'BINDPORT', default: JPHRC.fetch('port', 9090)
+    method_option :config, type: :string, banner: 'CONFIGFILE', default: '_config.yml'
     desc 'listen', 'Start SiteHook'
     def listen
       SiteHook.mklogdir unless SiteHook::Paths.logs.exist?
-      SiteHook::Webhook.set_bind(options[:host], options[:port])
+      SiteHook::Webhook.set_options(options[:host], options[:port], options[:config])
       SiteHook::Webhook.run!
     end
   end

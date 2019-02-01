@@ -15,9 +15,15 @@ module SiteHook
     BUILDLOG = SiteHook::HookLogger::BuildLog.new(SiteHook::Logs.log_levels['build']).log
     APPLOG = SiteHook::HookLogger::AppLog.new(SiteHook::Logs.log_levels['app']).log
     JPHRC = YAML.load_file(Pathname(Dir.home).join('.jph', 'config'))
-    def self.set_bind(host, port)
+    def self.set_bind(host, port, config)
       self.set port: port
       self.set bind: host
+      if config == '_config.yml'
+        SiteHook.set_options(:BUILD_CONFIG, '_config.yml')
+      else
+        SiteHook.set_options(:BUILD_CONFIG, config)
+      end
+
     end
     set server: %w[thin]
     set quiet: true
@@ -146,17 +152,22 @@ module SiteHook
       end
       if Webhook.verified?(req_body.to_s, signature, project['hookpass'], plaintext: plaintext, service: service)
         BUILDLOG.info 'Building...'
+        begin
+          jekyllbuild = SiteHook::Senders::Jekyll.build(project['src'], project['dst'], BUILDLOG, options: {config: SiteHook::BUILD_CONFIG})
+          jekyll_status = jekyllbuild
+          case jekyll_status
 
-        jekyllbuild = SiteHook::Senders::Jekyll.build(project['src'], project['dst'], BUILDLOG)
-        jekyll_status = jekyllbuild
-        case jekyll_status
+          when 0
+            status 200
+            headers 'Content-Type' => 'application/json'
+            body { { 'status': 'success' }.to_json }
+          when -1, -2, -3
+            halt 400, { 'Content-Type' => 'application/json' }, { 'status': 'exception', error: jekyll_status.fetch(:message).to_s }
 
-        when 0
-          status 200
-          headers 'Content-Type' => 'application/json'
-          body { { 'status': 'success' }.to_json }
-        when -1, -2, -3
-          halt 400, { 'Content-Type' => 'application/json' }, { 'status': 'exception', error: jekyll_status.fetch(:message).to_s }
+          end
+
+        rescue => e
+          halt 500, { 'Content-Type' => 'application/json' }, { 'status': 'exception', error: e.to_s}
 
         end
 

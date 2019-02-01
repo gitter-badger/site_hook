@@ -39,7 +39,7 @@ module SiteHook
           jekyll_source = Jekyll.instance_variable_get('@jekyll_source')
           build_dest = Jekyll.instance_variable_get('@build_dest')
           log = Jekyll.instance_variable_get('@log')
-          Open3.popen2e({'BUNDLE_GEMFILE' => Pathname(jekyll_source).join('Gemfile').to_path}, "bundle exec jekyll build --source #{Pathname(jekyll_source).realdirpath.to_path} --destination #{Pathname(build_dest).to_path}") { |in_io, outerr_io, thr|
+          Open3.popen2e({'BUNDLE_GEMFILE' => Pathname(jekyll_source).join('Gemfile').to_path}, "bundle exec jekyll build --source #{Pathname(jekyll_source).realdirpath.to_path} --destination #{Pathname(build_dest).to_path} --config #{Pathname(jekyll_source).join(@options[:config])}") { |in_io, outerr_io, thr|
             # pid = thr.pid
 
             outerr = outerr_io.read.lines
@@ -77,10 +77,11 @@ module SiteHook
       # @param [String,Pathname] jekyll_source Jekyll Source
       # @param [String,Pathname] build_dest Build Destination
       # @param [BuildLog] logger Build Logger Instance
-      def self.build(jekyll_source, build_dest, logger)
+      def self.build(jekyll_source, build_dest, logger, options:)
         @jekyll_source = jekyll_source
         @build_dest = build_dest
         @log = logger
+        @options = options
         instance = self::Build.new
         meths = [instance.do_grab_version, instance.do_pull, instance.do_build]
         begin
