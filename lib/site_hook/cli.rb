@@ -41,7 +41,7 @@ module SiteHook
         )
         continue
       else
-        # don't do anything
+        true
       end
     end
   end
