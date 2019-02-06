@@ -2,6 +2,7 @@ require 'open3'
 require 'site_hook/logger'
 require 'git'
 require 'paint'
+require 'site_hook/persist'
 module SiteHook
   autoload :Logs, 'site_hook/log'
 
@@ -10,9 +11,14 @@ module SiteHook
       attr :jekyll_source, :build_dest
 
       class Build
+        def initialize(options)
+          @options = options
+        end
+
+        JEKYLL_SOURCE_VAR = '@jekyll_source'
 
         def do_grab_version
-          jekyll_source = Jekyll.instance_variable_get('@jekyll_source')
+          jekyll_source = Jekyll.instance_variable_get(JEKYLL_SOURCE_VAR)
           log = Jekyll.instance_variable_get('@log')
           begin
             stdout_str, status = Open3.capture2({'BUNDLE_GEMFILE' => Pathname(jekyll_source).join('Gemfile').to_path}, "jekyll --version --source #{jekyll_source}")
@@ -26,7 +32,7 @@ module SiteHook
         def do_pull
           fakelog = SiteHook::HookLogger::FakeLog.new
           reallog = SiteHook::HookLogger::GitLog.new(SiteHook::Logs.log_levels['git']).log
-          jekyll_source = Jekyll.instance_variable_get('@jekyll_source')
+          jekyll_source = Jekyll.instance_variable_get(JEKYLL_SOURCE_VAR)
           # build_dest = Jekyll.instance_variable_get('@build_dest')
           g = Git.open(jekyll_source, log: fakelog)
           g.pull
@@ -36,7 +42,7 @@ module SiteHook
         end
 
         def do_build
-          jekyll_source = Jekyll.instance_variable_get('@jekyll_source')
+          jekyll_source = Jekyll.instance_variable_get(JEKYLL_SOURCE_VAR)
           build_dest = Jekyll.instance_variable_get('@build_dest')
           log = Jekyll.instance_variable_get('@log')
           Open3.popen2e({'BUNDLE_GEMFILE' => Pathname(jekyll_source).join('Gemfile').to_path}, "bundle exec jekyll build --source #{Pathname(jekyll_source).realdirpath.to_path} --destination #{Pathname(build_dest).to_path} --config #{Pathname(jekyll_source).join(@options[:config])}") { |in_io, outerr_io, thr|
@@ -58,17 +64,17 @@ module SiteHook
               case
               when line =~ /done in .*/
                 log.info(line)
-              when line =~ /Generating/
+              when line =~ /Generating.../
                 log.info(line)
               when line =~ /Configuration file:|Source:|Destination:/
                 log.debug(line)
-              when line =~ /Incremental|Auto-regeneration/
+              when line =~ /Incremental build: disabled.|Auto-regeneration/
                 print ''
               else
                 log.debug line
               end
             end
-            exit_status = thr.value
+            thr.value
           }
 
         end
@@ -82,12 +88,12 @@ module SiteHook
         @build_dest = build_dest
         @log = logger
         @options = options
-        instance = self::Build.new
+        instance = self::Build.new(options)
         meths = [instance.do_grab_version, instance.do_pull, instance.do_build]
         begin
           meths.each do |m|
             @log.debug("Running #{m}")
-            instance.method(m).call
+            instance.send(m)
             @log.debug("Ran #{m}")
           end
           return {message: 'success', status: 0}

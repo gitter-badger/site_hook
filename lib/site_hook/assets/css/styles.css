@@ -10,17 +10,17 @@ h1 {
 .list-group-item {
   background-color: rgb(0, 51, 2);
   border-radius: 5px;
-  &:hover {
+}
+.list-group-item:hover {
     background-color: #3a3a3a;
-  }
 }
 a {
   color: darkgreen !important;
   text-decoration-color: darkgreen !important;
-  &:hover {
-    color: green !important;
-  }
-  &:focus {
-    color: green !important;
-  }
+}
+a:hover {
+  color: green !important;
+}
+a:focus {
+  color: green !important;
 }

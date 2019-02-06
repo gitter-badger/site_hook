@@ -17,10 +17,11 @@ Logging.color_scheme(
     :logger  => :cyan,
     :message => :green,
     )
-
+PATTERN = '[%d] %-5l %c: %m\n'
+DATE_PATTERN = '%Y-%m-%d %H:%M:%S'
 layout = Logging.layouts.pattern \
-  :pattern      => '[%d] %-5l %c: %m\n',
-  :date_pattern => '%Y-%m-%d %H:%M:%S',
+  :pattern      => PATTERN,
+  :date_pattern => DATE_PATTERN,
   :color_scheme => 'bright'
 
 Logging.appenders.stdout \
@@ -30,6 +31,7 @@ module SiteHook
   def mklogdir
     path = Pathname(Dir.home).join('.jph', 'logs')
     if path.exist?
+      # Path exists, don't do anything
     else
       FileUtils.mkpath(path.to_s)
     end
@@ -52,7 +54,7 @@ module SiteHook
       flayout = Logging.appenders.rolling_file \
         Pathname(Dir.home).join('.jph', 'logs', "#{SiteHook.safe_log_name(self)}-#{@log_level}.log").to_s,
         :age     => 'daily',
-        :pattern => '[%d] %-5l %c: %m\n'
+        :pattern => PATTERN
       @log.add_appenders 'stdout', flayout
       @log.level = log_level
     end
@@ -77,7 +79,7 @@ module SiteHook
         flayout = Logging.appenders.rolling_file \
           Pathname(Dir.home).join('.jph', 'logs', "#{SiteHook.safe_log_name(self)}-#{@log_level}.log").to_s,
           :age     => 'daily',
-          :pattern => '[%d] %-5l %c: %m\n'
+          :pattern => PATTERN
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
         LL.debug "Initialized #{SiteHook.safe_log_name(self)}"
@@ -96,7 +98,7 @@ module SiteHook
         flayout = Logging.appenders.rolling_file \
           Pathname(Dir.home).join('.jph', 'logs', "#{SiteHook.safe_log_name(self)}-#{@log_level}.log").to_s,
           :age     => 'daily',
-          :pattern => '[%d] %-5l %c: %m\n'
+          :pattern => PATTERN
         @log.add_appenders 'stdout', flayout
         @log.level = @log_level
         LL.debug "Initialized #{SiteHook.safe_log_name(self)}"
@@ -115,7 +117,7 @@ module SiteHook
         flayout = Logging.appenders.rolling_file \
           Pathname(Dir.home).join('.jph', 'logs', "#{SiteHook.safe_log_name(self)}-#{@log_level}.log").to_s,
           :age     => 'daily',
-          :pattern => '[%d] %-5l %c: %m\n'
+          :pattern => PATTERN
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
 
@@ -135,7 +137,7 @@ module SiteHook
         flayout = Logging.appenders.rolling_file \
           Pathname(Dir.home).join('.jph', 'logs', "#{SiteHook.safe_log_name(self)}-#{@log_level}.log").to_s,
           :age     => 'daily',
-          :pattern => '[%d] %-5l %c: %m\n'
+          :pattern => PATTERN
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
         LL.debug "Initialized #{SiteHook.safe_log_name(self)}"
@@ -171,6 +173,8 @@ module SiteHook
               @info_output << "Pulling via #{$2}/#{$3} on #{$1}."
             when msg =~ /\* branch (.*?) -> .*/
               @info_output << "Using #{$1} branch"
+            else
+              @debug_output << msg
             end
           end
         else

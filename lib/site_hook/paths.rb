@@ -10,12 +10,15 @@
 module SiteHook
   # Paths: Paths to gem resources and things
   class Paths
-    def self.config
+    def self.old_config
       Pathname(Dir.home).join('.jph', 'config')
+    end
+    def self.config
+      Pathname(Dir.home).join('.shrc', 'config')
     end
 
     def self.logs
-      Pathname(Dir.home).join('.jph', 'logs')
+      Pathname(Dir.home).join('.shrc', 'logs')
     end
     def self.lib_dir
       Pathname(::Gem.user_dir).join('gems', "site_hook-#{SiteHook::VERSION}", 'lib')

@@ -6,23 +6,24 @@
 # -> Copyright (c) 2018 Ken Spencer
 # -> License: MIT
 ##########
-require 'thor'
+require 'gli'
 
 module SiteHook
-  class FileExistsError < Exception
+  class FileExistsError < StandardError
   end
 
   # *DebugClass*
   #
-  # Holds all of the commands for the config subcommand
-  class DebugClass < Thor
+  # Holds all of the commands for the debug subcommand
+  class App
+    extend GLI::App
 
-    desc 'paths [options]', "Return current paths for running site_hook"
+    desc "Return current paths for running site_hook"
     def paths
       home_gem_path = ENV['GEM_HOME']
       puts home_gem_path
       puts Pathname(::Gem.default_path.first).join('lib', 'site_hook')
-      puts .exist?
+      # puts .exist?
     end
   end
 end
