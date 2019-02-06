@@ -9,10 +9,11 @@
 require 'site_hook/persist'
 require 'site_hook/const'
 require 'sinatra'
+require 'site_hook/config'
 
 module SiteHook
   class Webhook < Sinatra::Base
-
+    @@config = SiteHook::Config.new.config
     set server: %w[thin]
     set quiet: true
     set raise_errors: true
@@ -53,14 +54,15 @@ module SiteHook
     end
 
     CONTENT_TYPE = 'Content-Type'
+    APPLICATION_JSON = 'application/json'
     get '/' do
       halt 403, {CONTENT_TYPE => 'text/html'}, '<h1>See <a href="/webhooks/">here</a> for the active webhooks</h1>'
     end
 
-    APPLICATION_JSON = 'application/json'
+
     get '/webhooks.json', provides: :json do
       content_type APPLICATION_JSON
-      public_projects = JPHRC['projects'].select do |_project, hsh|
+      public_projects = @@config.to_h['projects'].select do |_project, hsh|
         !hsh.fetch('private')
       end
       result          = {}
@@ -74,7 +76,7 @@ module SiteHook
     end
 
     get '/webhooks/?' do
-      haml :webhooks, locals: {'projects' => JPHRC['projects']}
+      haml :webhooks, locals: {'projects' => @@config.to_h['projects']}
     end
 
     get '/webhook/*' do
@@ -121,15 +123,19 @@ module SiteHook
         event   = 'push'
         service = events.select { |_key, value| value }.keys.first
       when false
-        halt 400, {CONTENT_TYPE: APPLICATION_JSON}, {message: 'events are mutually exclusive', status: 'failure'}.to_json
+        halt 400,
+             {CONTENT_TYPE: APPLICATION_JSON},
+             {message: 'events are mutually exclusive', status: 'failure'}.to_json
 
       else
         halt 400,
              {CONTENT_TYPE: APPLICATION_JSON},
-             'status': 'failure', 'message': 'something weird happened'
+             {'status': 'failure', 'message': 'something weird happened'}
       end
       if event != 'push' && event.nil?
-        halt 400, {CONTENT_TYPE: APPLICATION_JSON}, {message: 'no event header'}.to_json
+        halt 400,
+             {CONTENT_TYPE: APPLICATION_JSON},
+             {message: 'no event header'}.to_json
       end
       case service
       when 'gitlab'
@@ -160,12 +166,9 @@ module SiteHook
           else
             # This shouldn't happen
           end
-
         rescue => e
           halt 500, {CONTENT_TYPE => APPLICATION_JSON}, {'status': 'exception', error: e.to_s}
-
         end
-
       else
         halt 403, {CONTENT_TYPE => APPLICATION_JSON}, {message: 'incorrect secret', 'status': 'failure'}.to_json
       end

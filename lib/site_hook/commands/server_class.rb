@@ -6,13 +6,12 @@
 # -> Copyright (c) 2018 Ken Spencer
 # -> License: MIT
 ##########
-require 'site_hook/persist'
 require 'site_hook/paths'
 require 'site_hook/const'
 require 'gli'
 module SiteHook
   autoload :Webhook, 'site_hook/webhook'
-  SHRC = YAML.load_file(SiteHook::Paths.config) || YAML.load_file(SiteHook::Paths.old_config)
+  SHRC = SiteHook::Config.new.config
   # *ServerClass*
   #
   # Holds all of the commands for the config subcommand
@@ -24,8 +23,8 @@ module SiteHook
       c.command 'listen' do |listen|
         listen.desc 'Start SiteHook'
         listen.flag :log_levels, type: :hash, arg_name: 'LEVELS', default: SiteHook::Logs.log_levels
-        listen.flag :host, type: :string, arg_name: 'BINDHOST', default: SHRC.fetch('host', '127.0.0.1')
-        listen.flag :port, type: :numeric, arg_name: 'BINDPORT', default: SHRC.fetch('port', 9090)
+        listen.flag :host, type: :string, arg_name: 'BINDHOST', default_value: SHRC.to_h.fetch('host', '127.0.0.1')
+        listen.flag :port, type: :numeric, arg_name: 'BINDPORT', default_value: SHRC.to_h.fetch('port', 9090)
         listen.action do |global_options, options, arguments|
           SiteHook::Webhook.set_options(options[:host], options[:port])
           SiteHook.mklogdir unless SiteHook::Paths.logs.exist?

@@ -11,6 +11,6 @@
 /vendor
 # rspec failure tracking
 .rspec_status
-Gemfile.lock
+/Gemfile.lock
 vendor/
 /.scannerwork

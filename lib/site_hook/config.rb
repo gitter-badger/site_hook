@@ -3,22 +3,20 @@ require 'recursive_open_struct'
 
 module SiteHook
   class Config
-    class Get
-      attr_reader :raw_config, :parsed_config, :config
-      def initialize(cfg_path = Pathname.new(SiteHook::Paths.config || SiteHook::Paths.old_config))
-        @filename = cfg_path
-        @raw_config = YAML.load_file(cfg_path)
-        @parsed_config = RecursiveOpenStruct.new(@raw_config, recurse_over_arrays: true, preserve_original_keys: true)
-        @config = @parsed_config
-      end
+    attr_reader :raw_config, :config, :filename
 
-    end
-    class Set
-      attr_reader :filename
-      def initialize(cfg_path)
-        @filename = cfg_path
-        @config = YAML.load_file(@filename)
+    def initialize
+      case SiteHook::Paths.config.exist?
+      when false # Old Config
+        @raw_config = YAML.load_file(SiteHook::Paths.old_config.to_s)
+        @filename   = SiteHook::Paths.old_config
+      when true # New Config
+        @raw_config = YAML.load_file(SiteHook::Paths.config.to_s)
+        @filename   = SiteHook::Paths.config
+      else
+        # Shouldn't happen
       end
+      @config = RecursiveOpenStruct.new(@raw_config, recurse_over_arrays: true, preserve_original_keys: true)
     end
   end
 end
