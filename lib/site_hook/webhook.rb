@@ -19,7 +19,6 @@ module SiteHook
     set raise_errors: true
     set views: Pathname(SiteHook::Paths.lib_dir).join('site_hook', 'views')
     set :public_folder, Pathname(SiteHook::Paths.lib_dir).join('site_hook', 'assets')
-    use CoffeeHandler
     def self.set_options(host, port)
       self.set bind: host.to_s
       self.set port: port.to_i

@@ -43,6 +43,13 @@ module SiteHook
           end
         end
       end
+      desc 'upgrade your site_hook configuration to the latest version'
+      c.command 'upgrade-shrc' do |upgrade|
+        upgrade.action do |gopts, opts, args|
+          SiteHook::NotImplemented.declare(upgrade)
+        end
+      end
+
       desc 'generates a project block'
       c.command 'gen-project' do |gen_project|
         gen_project.action do |global_options, options, arguments|

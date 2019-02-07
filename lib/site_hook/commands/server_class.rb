@@ -17,7 +17,7 @@ module SiteHook
   # Holds all of the commands for the config subcommand
   class App
     extend GLI::App
-
+    desc 'Run Server actions'
     command 'server' do |c|
       c.desc 'Start the server'
       c.command 'listen' do |listen|
@@ -27,8 +27,9 @@ module SiteHook
         listen.flag :port, type: :numeric, arg_name: 'BINDPORT', default_value: SHRC.to_h.fetch('port', 9090)
         listen.action do |global_options, options, arguments|
           SiteHook::Webhook.set_options(options[:host], options[:port])
-          SiteHook.mklogdir unless SiteHook::Paths.logs.exist?
-          SiteHook::Webhook.run!
+          SiteHook::Methods.mklogdir unless SiteHook::Paths.logs.exist?
+          $threads << Thread.new { SiteHook::Webhook.run! }
+          $threads.map(&:join)
         end
       end
     end

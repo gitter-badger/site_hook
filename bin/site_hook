@@ -1,3 +1,4 @@
 #!/usr/bin/env ruby
 require 'site_hook'
+$threads = []
 exit SiteHook::App.run(ARGV)

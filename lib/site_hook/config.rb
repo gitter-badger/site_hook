@@ -17,6 +17,7 @@ module SiteHook
         # Shouldn't happen
       end
       @config = RecursiveOpenStruct.new(@raw_config, recurse_over_arrays: true, preserve_original_keys: true)
+    rescue Errno::ENOENT => e
     end
   end
 end
