@@ -10,10 +10,11 @@ require 'site_hook/persist'
 require 'site_hook/const'
 require 'sinatra'
 require 'site_hook/config'
+require 'site_hook/configs'
 
 module SiteHook
   class Webhook < Sinatra::Base
-    @@config = SiteHook::Config.new.config
+
     set server: %w[thin]
     set quiet: true
     set raise_errors: true
@@ -61,7 +62,7 @@ module SiteHook
 
     get '/webhooks.json', provides: :json do
       content_type APPLICATION_JSON
-      public_projects = @@config.to_h['projects'].select do |_project, hsh|
+      public_projects = SiteHook::Configs::Projects.to_h.select do |_project, hsh|
         !hsh.fetch('private')
       end
       result          = {}
@@ -75,7 +76,7 @@ module SiteHook
     end
 
     get '/webhooks/?' do
-      haml :webhooks, locals: {'projects' => @@config.to_h['projects']}
+      haml :webhooks, locals: {'projects' => SiteHook::Configs::Projects.to_h}
     end
 
     get '/webhook/*' do
@@ -91,7 +92,7 @@ module SiteHook
       req_body = request.body.read
       js       = RecursiveOpenStruct.new(JSON.parse(req_body))
 
-      projects = JPHRC['projects']
+      projects = SiteHook::Configs::Projects.to_h
       project = projects.fetch(params[:hook_name], nil)
       if project.nil?
         halt 404, {CONTENT_TYPE => APPLICATION_JSON}, {message: 'no such project', status: 1}.to_json

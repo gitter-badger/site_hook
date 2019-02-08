@@ -1,23 +1,25 @@
 require 'site_hook/paths'
-require 'recursive_open_struct'
+require 'configurability'
+require 'site_hook/configs'
 
 module SiteHook
   class Config
-    attr_reader :raw_config, :config, :filename
-
+    attr_accessor :config
     def initialize
       case SiteHook::Paths.config.exist?
       when false # Old Config
-        @raw_config = YAML.load_file(SiteHook::Paths.old_config.to_s)
         @filename   = SiteHook::Paths.old_config
       when true # New Config
-        @raw_config = YAML.load_file(SiteHook::Paths.config.to_s)
         @filename   = SiteHook::Paths.config
       else
         # Shouldn't happen
       end
-      @config = RecursiveOpenStruct.new(@raw_config, recurse_over_arrays: true, preserve_original_keys: true)
-    rescue Errno::ENOENT => e
+      begin
+      @config = Configurability::Config.load(@filename)
+      Configurability.configure_objects(@config)
+      rescue NoMethodError => e
+        puts @filename.empty?
+      end
     end
   end
 end

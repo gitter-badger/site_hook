@@ -3,6 +3,7 @@ require 'highline'
 require 'random_password'
 require 'yaml'
 require 'site_hook/config'
+require 'site_hook/configs'
 module SiteHook
 
 
@@ -65,8 +66,8 @@ module SiteHook
       end
 
       c.command 'mkpass' do |mkpass|
-        mkpass.flag('symbol-amt', arg_name: 'AMT', type: Integer, default_value: 0)
-        mkpass.flag('length', arg_name: 'LENGTH', type: Integer, default_value: 10)
+        mkpass.flag('symbol-amt', arg_name: 'AMT', type: Integer, default_value: SiteHook::Configs::Cli::Config::Mkpass.symbols)
+        mkpass.flag('length', arg_name: 'LENGTH', type: Integer, default_value: SiteHook::Configs::Cli::Config::Mkpass.length)
         mkpass.action do |global_options, options, arguments|
 
           if (8..255).include?(options[:length])

@@ -1,4 +1,4 @@
-
+require 'site_hook/configs/log_levels'
 module SiteHook
   autoload :Paths, 'site_hook/paths'
   autoload :Config, 'site_hook/config'
@@ -13,8 +13,8 @@ module SiteHook
         'app'   => 'info'
     }
     def self.log_levels
-
-      log_level = Config.new.config.to_h.fetch('log_levels')
+      puts SiteHook::Configs::LogLevels.methods
+      log_level = SiteHook::Configs::LogLevels
       if log_level
         log_level
       end

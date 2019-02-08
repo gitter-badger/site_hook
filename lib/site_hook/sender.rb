@@ -93,7 +93,10 @@ module SiteHook
         begin
           meths.each do |m|
             @log.debug("Running #{m}")
-            instance.send(m)
+            $threads.add(Thread.new do
+              Thread.current['type'] = "build-#{m}"
+              instance.send(m)
+            end)
             @log.debug("Ran #{m}")
           end
           return {message: 'success', status: 0}
