@@ -12,6 +12,8 @@ require 'sinatra'
 require 'site_hook/config'
 require 'site_hook/configs'
 
+require 'recursive_open_struct'
+
 module SiteHook
   class Webhook < Sinatra::Base
 
