@@ -16,7 +16,8 @@ module SiteHook
     commands_from 'site_hook/commands'
 
     around do |global_options, command, options, args, code|
-      @config_hash = SiteHook::Config.new
+      SiteHook::Config.new
+      SiteHook::Config.cfg_obj
       @hl          = HighLine.new(STDIN, STDOUT, 80, 1, 2, 0)
       code.call
     end

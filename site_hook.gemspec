@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ['Ken Spencer']
   spec.email = ['me@iotaspencer.me']
 
-  spec.summary = %q{Catch a POST request from a git service webhook and build a jekyll site.}
+  spec.summary = %q{Catch a POST request from a git service push webhook and build a jekyll site.}
   spec.homepage = 'https://iotaspencer.me/projects/site_hook/'
   spec.license = 'MIT'
   spec.licenses = ['MIT']
@@ -26,7 +26,6 @@ Gem::Specification.new do |spec|
   spec.bindir = 'bin'
   spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
-  spec.add_runtime_dependency 'activesupport', '~> 5.1'
   spec.add_runtime_dependency 'configurability', '~> 3.3.0'
   spec.add_runtime_dependency 'git', '~> 1.3'
   spec.add_runtime_dependency 'gli', '~> 2.18.0'
@@ -43,5 +42,13 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'minitest', '~> 5.11.3'
 
-  spec.post_install_message
+  spec.post_install_message = <<~POSTINSTALL
+    site_hook 0.9.* introduces breaking configuration changes!
+    .shrc/config -> root:host and root:port directives should now be located in
+    root:webhook:host and root:webhook:port
+
+    Tutorials on site_hook configuration, installation and setup
+    can be seen on https://iotaspencer.me/projects/site_hook
+
+  POSTINSTALL
 end

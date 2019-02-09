@@ -10,6 +10,7 @@ require 'site_hook/persist'
 require 'site_hook/const'
 require 'sinatra'
 require 'site_hook/config'
+require 'configurability'
 require 'site_hook/configs'
 
 require 'recursive_open_struct'

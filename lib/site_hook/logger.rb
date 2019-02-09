@@ -1,7 +1,17 @@
 require 'paint'
 require 'logging'
 require 'site_hook/paths'
-require 'active_support/core_ext/string'
+
+class String
+  def squish!
+    strip!
+    gsub!(/\s+/, ' ')
+    self
+  end
+  def squish
+    dup.squish!
+  end
+end
 
 Logging.init %w(NONE DEBUG INFO WARN ERROR FATAL)
 Logging.color_scheme(
