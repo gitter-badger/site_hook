@@ -17,12 +17,11 @@ require 'recursive_open_struct'
 
 module SiteHook
   class Webhook < Sinatra::Base
-
     set server: %w[thin]
     set quiet: true
     set raise_errors: true
     set views: Pathname(SiteHook::Paths.lib_dir).join('site_hook', 'views')
-    set :public_folder, Pathname(SiteHook::Paths.lib_dir).join('site_hook', 'assets')
+    set public_folder: Pathname(SiteHook::Paths.lib_dir).join('site_hook', 'assets')
     def self.set_options(host, port)
       self.set bind: host.to_s
       self.set port: port.to_i
@@ -65,8 +64,12 @@ module SiteHook
 
     get '/webhooks.json', provides: :json do
       content_type APPLICATION_JSON
-      public_projects = SiteHook::Configs::Projects.to_h.select do |_project, hsh|
-        !hsh.fetch('private')
+      public_projects = SiteHook::Config.class_variable_get(:'@@projects').each do |project_name, klass|
+        if klass.private
+          SiteHook::Consts::APPLOG.log.debug("Not displaying #{project_name} since its private")
+          next
+        end
+
       end
       result          = {}
       public_projects.each do |project, hsh|
@@ -79,7 +82,8 @@ module SiteHook
     end
 
     get '/webhooks/?' do
-      haml :webhooks, locals: {'projects' => SiteHook::Configs::Projects.to_h}
+      SiteHook::Consts::APPLOG.info "-> #{Time.now} - #{request.ip}"
+      haml :webhooks, locals: {'projects' => SiteHook::Config.projects}
     end
 
     get '/webhook/*' do
@@ -95,7 +99,7 @@ module SiteHook
       req_body = request.body.read
       js       = RecursiveOpenStruct.new(JSON.parse(req_body))
 
-      projects = SiteHook::Configs::Projects.to_h
+      projects = SiteHook::Configs::Projects.projects
       project = projects.fetch(params[:hook_name], nil)
       if project.nil?
         halt 404, {CONTENT_TYPE => APPLICATION_JSON}, {message: 'no such project', status: 1}.to_json

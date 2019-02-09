@@ -1,4 +1,5 @@
 require 'configurability'
+require 'site_hook/config'
 module SiteHook
   module Configs
     class LogLevels

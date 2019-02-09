@@ -3,6 +3,11 @@ require 'site_hook/config'
 module SiteHook
   module Configs
     class Projects
+      extend Configurability
+      configurability(:projects) do
+      end
+      @@projects = Hash.new
+      @@consts = []
       def self.init(project_name, klass)
         project = Class.new do
           extend Configurability
@@ -15,7 +20,17 @@ module SiteHook
             setting :private, default: false
           end
         end
+        @@projects.store(klass, project)
         Projects.const_set(klass, project)
+      end
+      def self.each(name, &block)
+
+        const_get(name).each(&block)
+        self
+
+      end
+      def self.projects
+        @@projects
       end
     end
   end

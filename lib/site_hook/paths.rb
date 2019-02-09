@@ -32,15 +32,20 @@ module SiteHook
     end
 
     def self.lib_dir
-      Pathname(::Gem.user_dir).join('gems', "site_hook-#{SiteHook::VERSION}", 'lib')
+      if ENV['BUNDLE_GEMFILE']
+        Pathname(ENV['BUNDLE_GEMFILE']).dirname.join('lib')
+      else
+        Pathname(::Gem.user_dir).join('gems', "site_hook-#{SiteHook::VERSION}", 'lib')
+      end
+
     end
     def self.make_log_name(klass, level, old_exists = self.old_logs.exist?, new_exists = self.logs.exist?)
       case old_exists
       when true
-        self.old_logs.join("#{SiteHook::Methods.safe_log_name(self)}-#{@log_level}.log").to_s
+        self.old_logs.join("#{SiteHook::Methods.safe_log_name(klass)}-#{level}.log").to_s
       when false
         if new_exists
-          self.logs.join("#{SiteHook::Methods.safe_log_name(self)}-#{@log_level}.log").to_s
+          self.logs.join("#{SiteHook::Methods.safe_log_name(klass)}-#{level}.log").to_s
         else
           raise SiteHook::NoLogsError.new()
         end
