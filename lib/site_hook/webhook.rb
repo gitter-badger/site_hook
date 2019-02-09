@@ -98,7 +98,7 @@ module SiteHook
       request.body.rewind
       req_body = request.body.read
       js       = RecursiveOpenStruct.new(JSON.parse(req_body))
-
+      puts SiteHook::Configs::Projects.constants
       projects = SiteHook::Configs::Projects.projects
       project = projects.fetch(params[:hook_name], nil)
       if project.nil?
@@ -142,7 +142,7 @@ module SiteHook
       if event != 'push' && event.nil?
         halt 400,
              {CONTENT_TYPE: APPLICATION_JSON},
-             {message: 'no event header'}.to_json
+             {message: 'no event header', status: 'failure'}.to_json
       end
       case service
       when 'gitlab'

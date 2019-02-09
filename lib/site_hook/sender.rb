@@ -46,7 +46,7 @@ module SiteHook
           build_dest = Jekyll.instance_variable_get('@build_dest')
           log = Jekyll.instance_variable_get('@log')
           Open3.popen2e({'BUNDLE_GEMFILE' => Pathname(jekyll_source).join('Gemfile').to_path}, "bundle exec jekyll build --source #{Pathname(jekyll_source).realdirpath.to_path} --destination #{Pathname(build_dest).to_path} --config #{Pathname(jekyll_source).join(@options[:config])}") { |in_io, outerr_io, thr|
-            # pid = thr.pid
+            pid = thr.pid
 
             outerr = outerr_io.read.lines
             outerr.each do |line|
@@ -93,10 +93,7 @@ module SiteHook
         begin
           meths.each do |m|
             @log.debug("Running #{m}")
-            $threads.add(Thread.new do
-              Thread.current['type'] = "build-#{m}"
-              instance.send(m)
-            end)
+            instance.send(m)
             @log.debug("Ran #{m}")
           end
           return {message: 'success', status: 0}
