@@ -31,7 +31,7 @@ module SiteHook
       @@cfg_obj = cfg.projects
       @@cfg_obj.each do |key, section|
         key_name = key.to_s.scan(/\w+/).collect(&:capitalize).join
-        SiteHook::Configs::Projects.const_set(key_name, SiteHook::Configs::Projects.init(key, key_name))
+        SiteHook::Configs::Projects.init(key, key_name)
       end
     end
   end
