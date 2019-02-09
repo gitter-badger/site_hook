@@ -11,6 +11,18 @@ class String
   def squish
     dup.squish!
   end
+  def underscore!
+    self unless /[A-Z-]|::/.match?(self)
+    self.to_s.gsub!("::".freeze, "/".freeze)
+    self.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2'.freeze)
+    self.gsub!(/([a-z\d])([A-Z])/, '\1_\2'.freeze)
+    self.tr!("-".freeze, "_".freeze)
+    self.downcase!
+    self
+  end
+  def underscore
+    dup.underscore!
+  end
 end
 
 Logging.init %w(NONE DEBUG INFO WARN ERROR FATAL)
@@ -52,13 +64,28 @@ module SiteHook
 
         flayout = Logging.appenders.rolling_file \
           SiteHook::Paths.make_log_name(self, log_level),
-          :age     => 'daily',
-          :pattern => PATTERN
+          :size => 100000,
+          :pattern => PATTERN,
+          :roll_by => 'number'
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
       end
     end
+    class ConfigLog
+      attr :log, :log_level
+      def initialize(log_level = nil)
+        @log = Logging.logger[SiteHook::Paths.make_log_name(self, log_level)]
+        @log_level = log_level
 
+        flayout = Logging.appenders.rolling_file \
+          SiteHook::Paths.make_log_name(self, log_level),
+          :size => 100000,
+          :pattern => PATTERN,
+          :roll_by => 'number'
+        @log.add_appenders 'stdout', flayout
+        @log.level = log_level
+      end
+    end
     # Log Hook Actions
     class HookLog
       attr :log
@@ -69,8 +96,9 @@ module SiteHook
         @log_level = log_level
         flayout = Logging.appenders.rolling_file \
           SiteHook::Paths.make_log_name(self, @log_level),
-          :age     => 'daily',
-          :pattern => PATTERN
+          :size => 100000,
+          :pattern => PATTERN,
+          :roll_by => 'number'
         @log.add_appenders 'stdout', flayout
         @log.level = @log_level
       end
@@ -86,8 +114,9 @@ module SiteHook
         @log_level = log_level
         flayout = Logging.appenders.rolling_file \
           SiteHook::Paths.make_log_name(self, @log_level),
-          :age     => 'daily',
-          :pattern => PATTERN
+          :size => 100000,
+          :pattern => PATTERN,
+          :roll_by => 'number'
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
       end
@@ -104,8 +133,9 @@ module SiteHook
 
         flayout = Logging.appenders.rolling_file \
           SiteHook::Paths.make_log_name(self, @log_level),
-          :age     => 'daily',
-          :pattern => PATTERN
+          :size => 100000,
+          :pattern => PATTERN,
+          :roll_by => 'number'
         @log.add_appenders 'stdout', flayout
         @log.level = log_level
       end
