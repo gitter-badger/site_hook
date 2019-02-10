@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
+require 'site_hook/runner'
 require 'site_hook'
-exit SiteHook::Runner.run
+APP = SiteHook::Runner.new(ARGV, $stdin, $stdout, $stderr, Kernel)
+exit SiteHook::Runner.execute!

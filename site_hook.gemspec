@@ -39,8 +39,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sinatra-contrib', '~> 2.0', '>= 2.0.5'
   spec.add_runtime_dependency 'thin', '~> 1.7'
   spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'cli-test', '1.0.0'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'minitest', '~> 5.11.3'
+  spec.add_development_dependency 'rspec', '~> 3.8.0'
+  spec.add_development_dependency 'cucumber', '~> 3.1.2'
+  spec.add_development_dependency 'aruba', '~> 0.14.8'
 
   spec.post_install_message = <<~POSTINSTALL
     site_hook 0.9.* introduces breaking configuration changes!

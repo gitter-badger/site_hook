@@ -16,9 +16,6 @@ module SiteHook
     commands_from 'site_hook/commands'
 
     around do |global_options, command, options, args, code|
-      SiteHook::Config.new
-      SiteHook::Config.cfg_obj
-      @hl          = HighLine.new(STDIN, STDOUT, 80, 1, 2, 0)
       code.call
     end
     on_error do |exception|
@@ -37,6 +34,10 @@ module SiteHook
 
     end
     pre do |global_options, command, options, args|
+      @hl          = HighLine.new($stdin, $stdout, 80, 1, 2, 0)
+      SiteHook::Config.new
+      SiteHook::Config.cfg_obj
+      SiteHook::Config.make_projects
       if SiteHook::Paths.old_config.exist?
         @deprecation = SiteHook::Deprecation.deprecate_config(command)
         if @deprecation[:exit]
@@ -58,11 +59,5 @@ end
 #   SiteHook::Configs::LogLevels.reload
 #   SiteHook::Configs::Webhook.reload
 # end
-module SiteHook
-  class Runner
-    def self.run(input = STDIN, output = STDOUT, error = STDERR)
-        SiteHook::App.run(ARGV)
-    end
-  end
-end
+
 

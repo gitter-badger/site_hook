@@ -6,13 +6,12 @@
 # -> Copyright (c) 2018 Ken Spencer
 # -> License: MIT
 ##########
-require 'site_hook/persist'
 require 'site_hook/const'
 require 'sinatra'
 require 'site_hook/config'
 require 'configurability'
 require 'site_hook/configs'
-
+require 'site_hook/methods'
 require 'recursive_open_struct'
 
 module SiteHook
@@ -57,6 +56,9 @@ module SiteHook
 
     CONTENT_TYPE = 'Content-Type'
     APPLICATION_JSON = 'application/json'
+    before '/*?' do
+      SiteHook::Consts::APPLOG.info "-> #{request.ip} - #{request.path}"
+    end
     get '/' do
       halt 403, {CONTENT_TYPE => 'text/html'}, '<h1>See <a href="/webhooks/">here</a> for the active webhooks</h1>'
     end
@@ -82,25 +84,25 @@ module SiteHook
     end
 
     get '/webhooks/?' do
-      SiteHook::Consts::APPLOG.info "-> #{Time.now} - #{request.ip}"
+
       haml :webhooks, locals: {'projects' => SiteHook::Config.projects}
     end
 
-    get '/webhook/*' do
-      if params[:splat]
-        pass
+    get '/webhook/:hook_name/?' do
+      project = SiteHook::Config.cfg_obj.projects[:"#{params[:hook_name]}"]
+      if project.private
+        haml :_404, locals: {'project_name' => params[:hook_name]}
       else
-        halt 405, {CONTENT_TYPE => APPLICATION_JSON}, {message: 'GET not allowed'}.to_json
+        haml :webhook, locals: {'host': project.host, 'repo': project.repo}
       end
+
     end
     post '/webhook/:hook_name/?' do
       service = nil
       request.body.rewind
       req_body = request.body.read
       js       = RecursiveOpenStruct.new(JSON.parse(req_body))
-      puts SiteHook::Configs::Projects.constants
-      projects = SiteHook::Configs::Projects.projects
-      project = projects.fetch(params[:hook_name], nil)
+      project = SiteHook::Config.cfg_obj.projects[:"#{params[:hook_name]}"]
       if project.nil?
         halt 404, {CONTENT_TYPE => APPLICATION_JSON}, {message: 'no such project', status: 1}.to_json
       end

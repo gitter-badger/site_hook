@@ -31,15 +31,20 @@ module SiteHook
     def self.projects
       @@projects
     end
+    def self.make_projects
+      @@cfg_obj.projects.each do |key, section|
+        real_key = key
+        key_name = key.to_s.scan(/\w+/).collect(&:capitalize).join
+        SiteHook::Configs::Projects.init(real_key, key, key_name)
+      end
+    end
 
     def self.cfg_obj
       cfg       = Configurability::Config.load(@@filename)
 
-      @@cfg_obj = cfg.projects
-      @@cfg_obj.each do |key, section|
-        key_name = key.to_s.scan(/\w+/).collect(&:capitalize).join
-        SiteHook::Configs::Projects.init(key, key_name)
-      end
+      @@cfg_obj = cfg
+
+      return @@cfg_obj
     end
   end
 end

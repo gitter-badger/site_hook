@@ -5,9 +5,9 @@ module SiteHook
     autoload :LogLevels, 'site_hook/config_sections/log_levels'
     autoload :Projects, 'site_hook/config_sections/projects'
     module_function
-    def print_example_config
-      full_config = [Cli.example, LogLevels.example, Projects.example].flatten(1)
-      puts full_config
+    def example_config
+      [Cli.example, LogLevels.example, Projects.example].flatten(1)
+
     end
   end
 end

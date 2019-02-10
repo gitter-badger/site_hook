@@ -8,8 +8,9 @@ module SiteHook
       end
       @@projects = Hash.new
       @@consts = []
-      def self.init(project_name, klass)
+      def self.init(real_key, project_name, klass)
         project = Class.new do
+          @@real_key = real_key
           extend Configurability
           configurability("projects__#{project_name}") do
             setting :src, default: '/path/to/src'
@@ -20,8 +21,10 @@ module SiteHook
             setting :private, default: false
           end
         end
-        @@projects.store(klass, project)
         Projects.const_set(klass, project)
+        Projects.const_get(klass).define_singleton_method(:real_key) do
+          @@real_key
+        end
       end
       def self.each(name, &block)
 
