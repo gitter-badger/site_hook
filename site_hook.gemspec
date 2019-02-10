@@ -42,6 +42,12 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'sinatra', '~> 2.0.2', '>= 2.0.5'
   spec.add_runtime_dependency 'sinatra-contrib', '~> 2.0', '>= 2.0.5'
   spec.add_runtime_dependency 'thin', '~> 1.7'
+  spec.add_development_dependency 'pry', '~> 0.12.2'
+  spec.add_development_dependency 'bundler', '~> 2.0.1'
+  spec.add_development_dependency 'rake', '>= 12.0'
+  spec.add_development_dependency 'cucumber', '>= 3.1.2'
+  spec.add_development_dependency 'public_suffix', '>= 3.0.3'
+  spec.add_development_dependency 'aruba', '~> 0.14.8'
 
 
   spec.post_install_message = <<~POSTINSTALL
