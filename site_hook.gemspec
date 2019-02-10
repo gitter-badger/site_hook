@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'highline', '~> 2.0', '>= 2.0.0'
   spec.add_runtime_dependency 'logging', '~> 2.2'
   spec.add_runtime_dependency 'paint', '~> 2.0'
+  spec.add_runtime_dependency 'public_suffix', '3.0.3'
   spec.add_runtime_dependency 'random_password', '~> 0.1.1'
   spec.add_runtime_dependency 'recursive-open-struct', '~> 1.1'
   spec.add_runtime_dependency 'sinatra', '~> 2.0.2', '>= 2.0.5'
