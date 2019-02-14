@@ -2,28 +2,7 @@ require 'paint'
 require 'logging'
 require 'site_hook/paths'
 
-class String
-  def squish!
-    strip!
-    gsub!(/\s+/, ' ')
-    self
-  end
-  def squish
-    dup.squish!
-  end
-  def underscore!
-    self unless /[A-Z-]|::/.match?(self)
-    self.to_s.gsub!("::".freeze, "/".freeze)
-    self.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2'.freeze)
-    self.gsub!(/([a-z\d])([A-Z])/, '\1_\2'.freeze)
-    self.tr!("-".freeze, "_".freeze)
-    self.downcase!
-    self
-  end
-  def underscore
-    dup.underscore!
-  end
-end
+
 
 Logging.init %w(NONE DEBUG INFO WARN ERROR FATAL)
 Logging.color_scheme(

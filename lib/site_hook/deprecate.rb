@@ -1,10 +1,9 @@
-require 'gli'
 require 'paint/util'
 module SiteHook
 
-  class DeprecationError < GLI::CustomExit
+  class DeprecationError < SiteHookError
     def initialize(msg)
-      super(msg, 99)
+      super
     end
   end
   class Deprecation
