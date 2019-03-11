@@ -1,5 +1,7 @@
 # SiteHook
 
+[![Join the chat at https://gitter.im/IotaSpencer/site_hook](https://badges.gitter.im/IotaSpencer/site_hook.svg)](https://gitter.im/IotaSpencer/site_hook?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Installation
 
 Add this line to your application's Gemfile:
